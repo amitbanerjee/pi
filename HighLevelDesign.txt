@@ -1,0 +1,18 @@
+--------------------------------------------------------
+## High level Design doc for the Package Indexer server
+--------------------------------------------------------
+
+1. Overall Structure.
+
+- Standard TCP socket listner program on port 8080
+
+- Runs a thread  per connection. Will handle upto 100 threads.
+
+- There will be a global Data Structure (GDS, described later) to keep track of indexed packages and dependencies in the system.
+
+- Exclusive access to the GDS to read, update.
+
+
+2. Global Data Structure to keep track of the Indexed Package
+
+3. Assumptions.
