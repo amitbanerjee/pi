@@ -5,7 +5,7 @@ class Package:
 		self.name = name
 		#All the package needed to index it
 		self.depsOn = []	
-		#All the package requires this package
+		#All the other packages require this package
 		self.reqdBy = []	
 
 	def __del__(self):
@@ -39,15 +39,25 @@ class PackageList:
 				print "All deps are not indexed"
 				return False
 
-		newP = Package(name)
+		#Take a blank position remobved earlier
+		newP = False
+		newPI = False
+		for i in range(len(self.packages)):
+			if self.packages[i].name == "" and not self.packages[i].depsOn and not self.packages[i].reqdBy:
+				newP = self.packages[i]
+				newPI = i
+				newP.name = name
+
+		#No blank position, so create a fresh one
+		if not newP:
+			newP = Package(name)
+			self.packages.append(newP)
+			newPI = len(self.packages)-1
 
 		#Add the dependencies
 		for sDI in depsIs:
 			newP.depsOn.append(sDI)
 
-		#Now index it
-		self.packages.append(newP)
-		newPI = len(self.packages)-1
 		
 		#Add the required by field
 		for sDI in depsIs:
@@ -77,12 +87,13 @@ class PackageList:
 
 				#Remove itself from all required by list
 				for sp in self.packages[i].depsOn:
+					#print i, sp, self.packages[sp].name, self.packages[sp].depsOn, self.packages[sp].reqdBy
 					self.packages[sp].reqdBy.remove(i)
 
-			#Blank the Package entry
-			self.packages[i].name = ""
-			self.packages[i].depsOn= []
-			self.packages[i].reqdBy= []
+		#Blank the Package entry
+		self.packages[i].name = ""
+		self.packages[i].depsOn= []
+		self.packages[i].reqdBy= []
 			
 		return True
 
@@ -104,11 +115,26 @@ if __name__=='__main__':
 	print myPacks.query("abc")	
 	print myPacks.remove("abc")	
 	print myPacks.query("abc")	
-	'''
 
 	print myPacks.index("c")	
 	print myPacks.index("b")	
 	print myPacks.index("a","b,c")
-	printPackage()
+	myPacks.printPackage()
 	print myPacks.remove("a")	
-	print myPacks.remove("b")	
+	#print myPacks.remove("b")	
+	print myPacks.index("d","b")
+	myPacks.printPackage()
+	'''
+
+	myPacks.index("k")
+	myPacks.index("i")
+	myPacks.index("h")
+	myPacks.index("j", "k")
+	myPacks.index("g", "i,h")
+	myPacks.index("f", "i,j")
+	myPacks.index("b", "g")
+	myPacks.index("c", "f")
+	myPacks.index("e", "f")
+	myPacks.index("a", "b,c")
+	myPacks.index("d", "c,e")
+	myPacks.printPackage()
