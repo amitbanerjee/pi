@@ -2,7 +2,7 @@
 import socket
 import sys
 from thread import *
-import Packages
+import newPackage
 import re
 
 reload(sys)
@@ -13,9 +13,6 @@ PORT = 8080 # Port Specified
 	 
 #Function for handling connections. This will be used to create threads
 def clientthread(conn, myPacks):
-	#Sending message to connected client
-	#conn.send('Welcome to the server. Type something and hit enter\n') #send only takes string
-     
 	#infinite loop so that function do not terminate and thread do not end.
 	while True:
 		#Receiving from client
@@ -26,51 +23,54 @@ def clientthread(conn, myPacks):
 			break
 		cmds = data.split("|")
 		if len(cmds) != 3:
-			conn.sendall("ERROR\n")	
-			print "ERROR in data"
-			print data
+			try:
+				conn.sendall("ERROR\n")	
+			except:
+				print "Dead connection: "
+				break
+			#print "ERROR in data"
+			#print data
 			continue
 
-		deps = ""
-		pkg = ""
 		cmd = cmds[0].strip()
 		pkg = cmds[1].strip()
-		reply = "ERROR\n"
-		if len(cmds) == 3:
-			deps = cmds[2].strip()
+		deps = cmds[2].strip()
+
 		if cmd == "INDEX":
 			
 			if not bool(re.match('^[.a-z0-9_-]+[+]*$', pkg, re.IGNORECASE)):
 				reply = "ERROR\n"
-				conn.sendall(reply)	
-				#print pkg
+				try:
+					conn.sendall(reply)	
+				except:
+					print "Dead connection: "
+					break
 				continue
 		
-			#print data
 			ret = myPacks.index(pkg, deps)	
-			if not ret:
-				reply = "ERROR\n"
-			else:
-				reply = ret
+			reply = ret
+
 		elif cmd == "REMOVE":
 			ret = myPacks.remove(pkg)	
-			if not ret:
-				reply = "ERROR\n"
-			else:
-				reply = ret
-			#print data + "|" + ret
-			#myPacks.printPackage()
+			reply = ret
+
 		elif cmd == "QUERY":
 			ret = myPacks.query(pkg)	
-			if not ret:
-				reply = "ERROR\n"
-			else:
-				reply = ret
+			reply = ret
+
 		elif cmd == "PRINT":
 			reply = myPacks.printPackage()	
+
 		else:
 			reply = "ERROR\n"
-		conn.sendall(reply)	
+
+
+		#Now send the response back
+		try:
+			conn.sendall(reply)	
+		except:
+			print "Dead connection: "
+			break
 		
 	#came out of loop
 	conn.close()
@@ -88,7 +88,7 @@ if __name__=='__main__':
 		sys.exit()
 	     
 	print 'Socket bind complete'
-	myPacks = Packages.PackageList() 
+	myPacks = newPackage.PackageList() 
 	#Start listening on socket
 	s.listen(150)
 	print 'Socket now listening'

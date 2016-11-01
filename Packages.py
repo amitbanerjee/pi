@@ -55,6 +55,7 @@ class PackageList:
 					newP = self.packages[i]
 					newPI = i
 					newP.depsOn = []
+					return "OK\n"
 	
 			#Take a blank position removed earlier if the package doesn't exist.
 			if not newP:
