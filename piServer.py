@@ -1,28 +1,70 @@
+# -*- coding: utf-8 -*-
 import socket
 import sys
 from thread import *
- 
+import Packages
+import re
+
+reload(sys)
+sys.setdefaultencoding('utf-8') 
+
 HOST = ''   # Symbolic name meaning all available interfaces
 PORT = 8080 # Port Specified
 	 
 #Function for handling connections. This will be used to create threads
-def clientthread(conn):
-    #Sending message to connected client
-    conn.send('Welcome to the server. Type something and hit enter\n') #send only takes string
+def clientthread(conn, myPacks):
+	#Sending message to connected client
+	#conn.send('Welcome to the server. Type something and hit enter\n') #send only takes string
      
-    #infinite loop so that function do not terminate and thread do not end.
-    while True:
-         
-        #Receiving from client
-        data = conn.recv(1024)
-        reply = 'OK...' + data
-        if not data: 
-            break
-     
-        conn.sendall(reply)
-     
-    #came out of loop
-    conn.close()
+	#infinite loop so that function do not terminate and thread do not end.
+	while True:
+		#Receiving from client
+		try:
+			data = conn.recv(2048).encode('utf-8')
+		except:
+			print "Don't handle non utf-8 chars"
+			break
+		cmds = data.split("|")
+		if len(cmds) < 2 or len(cmds) > 3:
+			conn.sendall("ERROR\n")	
+			continue
+
+		cmd = cmds[0].strip()
+		pkg = cmds[1].strip()
+		deps = ""
+		if re.search(r'[\s]', cmd) or re.search(r'[\s]', pkg) or re.search(r'[\s]', deps):
+			reply = "ERROR\n"
+			conn.sendall(reply)	
+			continue
+		reply = "ERROR\n"
+		if len(cmds) == 3:
+			deps = cmds[2].strip()
+		if cmd == "INDEX":
+			ret = myPacks.index(pkg, deps)	
+			if not ret:
+				reply = "ERROR\n"
+			else:
+				reply = ret
+		elif cmd == "REMOVE":
+			ret = myPacks.remove(pkg)	
+			if not ret:
+				reply = "ERROR\n"
+			else:
+				reply = ret
+		elif cmd == "QUERY":
+			ret = myPacks.query(pkg)	
+			if not ret:
+				reply = "ERROR\n"
+			else:
+				reply = ret
+		elif cmd == "PRINT":
+			reply = myPacks.printPackage()	
+		else:
+			reply = "ERROR\n"
+		conn.sendall(reply)	
+		
+	#came out of loop
+	conn.close()
 
 if __name__=='__main__':
 	 
@@ -31,23 +73,23 @@ if __name__=='__main__':
 	 
 	#Bind socket to local host and port
 	try:
-	    s.bind((HOST, PORT))
+		s.bind((HOST, PORT))
 	except socket.error as msg:
-	    print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
-	    sys.exit()
+		print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+		sys.exit()
 	     
 	print 'Socket bind complete'
-	 
+	myPacks = Packages.PackageList() 
 	#Start listening on socket
-	s.listen(10)
+	s.listen(150)
 	print 'Socket now listening'
 	#now keep talking with the client
 	while 1:
-	    #wait to accept a connection - blocking call
-	    conn, addr = s.accept()
-	    print 'Connected with ' + addr[0] + ':' + str(addr[1])
-	     
-	    #start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
-	    start_new_thread(clientthread ,(conn,))
+		#wait to accept a connection - blocking call
+		conn, addr = s.accept()
+		print 'Connected with ' + addr[0] + ':' + str(addr[1])
+
+		#start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
+		start_new_thread(clientthread ,(conn,myPacks,))
 	 
 	s.close()
