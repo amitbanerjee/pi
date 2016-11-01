@@ -41,6 +41,7 @@ class PackageList:
 				#Make sure all deps are indexed
 				if len(deps.split(",")) != len(depsIs):
 					#This is python, it will execute "finally" even if it return from here.
+					print "Not all deps are installed"
 					return "FAIL\n"
 	
 			newP = False
@@ -141,17 +142,14 @@ class PackageList:
 	def printPackage(self):
 		s = ""
 		for i in range(len(self.packages)):
-			s = self.packages[i].name + " depsOn = [" 
+			s = str(i) + "|" + self.packages[i].name + " depsOn = [" 
 			for j in  self.packages[i].depsOn:
 				s +=  self.packages[j].name + ","
 			s += "] reqdBy = [" 
 			for j in  self.packages[i].reqdBy:
 				s +=  self.packages[j].name + ","
-			s += "]\n" 
-		print s			
-		return s
-		
-		
+			s += "]" 
+			print s
 
 if __name__=='__main__':
 

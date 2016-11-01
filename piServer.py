@@ -20,26 +20,33 @@ def clientthread(conn, myPacks):
 	while True:
 		#Receiving from client
 		try:
-			data = conn.recv(2048).encode('utf-8')
+			data = conn.recv(4096).encode('utf-8')
 		except:
 			print "Don't handle non utf-8 chars"
 			break
 		cmds = data.split("|")
-		if len(cmds) < 2 or len(cmds) > 3:
+		if len(cmds) != 3:
 			conn.sendall("ERROR\n")	
+			print "ERROR in data"
+			print data
 			continue
 
+		deps = ""
+		pkg = ""
 		cmd = cmds[0].strip()
 		pkg = cmds[1].strip()
-		deps = ""
-		if re.search(r'[\s]', cmd) or re.search(r'[\s]', pkg) or re.search(r'[\s]', deps):
-			reply = "ERROR\n"
-			conn.sendall(reply)	
-			continue
 		reply = "ERROR\n"
 		if len(cmds) == 3:
 			deps = cmds[2].strip()
 		if cmd == "INDEX":
+			
+			if not bool(re.match('^[.a-z0-9_-]+[+]*$', pkg, re.IGNORECASE)):
+				reply = "ERROR\n"
+				conn.sendall(reply)	
+				#print pkg
+				continue
+		
+			#print data
 			ret = myPacks.index(pkg, deps)	
 			if not ret:
 				reply = "ERROR\n"
@@ -51,6 +58,8 @@ def clientthread(conn, myPacks):
 				reply = "ERROR\n"
 			else:
 				reply = ret
+			#print data + "|" + ret
+			#myPacks.printPackage()
 		elif cmd == "QUERY":
 			ret = myPacks.query(pkg)	
 			if not ret:
