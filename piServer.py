@@ -6,7 +6,7 @@ import newPackage
 import re
 
 reload(sys)
-sys.setdefaultencoding('utf-8') 
+sys.setdefaultencoding('utf-8')
 
 HOST = ''   # Symbolic name meaning all available interfaces
 PORT = 8080 # Port Specified
@@ -28,9 +28,6 @@ def clientthread(conn, myPacks):
 			except:
 				print "Dead connection"
 				break
-			#print "ERROR in data"
-			#print data
-			print data
 			continue
 
 		cmd = cmds[0].strip()
@@ -39,7 +36,6 @@ def clientthread(conn, myPacks):
 
 		if cmd == "INDEX":
 			
-			#if not bool(re.match('^[.a-z0-9_-]+[+]*[0-9]*$', pkg, re.IGNORECASE)):
 			if not bool(re.match('^[.+a-z0-9_-]+$', pkg, re.IGNORECASE)):
 				reply = "ERROR\n"
 				try:

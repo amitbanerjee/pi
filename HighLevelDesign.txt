@@ -6,13 +6,23 @@
 
 - Standard TCP socket listner program on port 8080
 
-- Runs a thread  per connection. Will handle upto 100 threads.
+- Runs a thread  per connection. Will handle upto 150 threads.
 
-- There will be a global Data Structure (GDS, described later) to keep track of indexed packages and dependencies in the system.
+- There will be a Shared Data Structure (described later) to keep track of indexed packages and dependencies in the system.
 
-- Exclusive access to the GDS to read, update.
+- Exclusive access (with a mutex) to the Shared Data Structure to read, update.
 
 
-2. Global Data Structure to keep track of the Indexed Package
+2. Shared Data Structure to keep track of the Indexed Package
 
-3. Assumptions.
+- It is a Dictionary (Hash table) where the key is the package. This dictionary is called as main dictionary henceforth. Value is another disctionary, where keys are the dependencies and value is 1. The value 1 is not important. This dictionary is called secondary dictionary henceforth.
+
+- Looking up(query), if a package exist is constant time.
+
+- Adding a package has two parts mentioned below.
+  -- If the package exits(constant time operation). In this case delete the package and it's dependencies. Delete the record from the main dictinary.
+  -- Add a record to the main dictionary and create secondary dictionary with the dependencies as the value of main dictionary.
+
+- Remove a record. This operation iterates over all the values of the main dictionary and looks if this package exists as a dependenciy. Iterate in main dictionary is linear time and lookup in each secondary dictionary is constant time.
+
+3. Assumptions. One of the requirement is little unclear. It says that is a package already exists indexing it again will update it's dependencies. What happens if one/more packages of the updated dependencies don't exist. I've assumed the index opertion fails and the existing package structure is not changed.
