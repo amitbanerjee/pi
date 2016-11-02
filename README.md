@@ -7,7 +7,7 @@
 
 # How to run (It needs Pythin 2.7). Use the following command to run. It attaches itself to the terminal prints the log on the terminal.
 
-## "python piServer.py"
-## To detach it from terminal and redirect log to a log file use "nohup python piServer.py > log file &"
+## "python piServer.py". To terminate use ctrl_c.
+## To detach it from terminal and redirect log to a log file use "nohup python piServer.py > log file &". To terminate kill the pid.
 
 # Note: It is tested successfully with the supplied testing suits "do-package-tree_linux" and it passed all the tests in 9441ms
