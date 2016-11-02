@@ -19,17 +19,18 @@ def clientthread(conn, myPacks):
 		try:
 			data = conn.recv(4096).encode('utf-8')
 		except:
-			print "Don't handle non utf-8 chars"
+			print "Don't handle non utf-8 chars\n"
 			break
 		cmds = data.split("|")
 		if len(cmds) != 3:
 			try:
 				conn.sendall("ERROR\n")	
 			except:
-				print "Dead connection: "
+				print "Dead connection"
 				break
 			#print "ERROR in data"
 			#print data
+			print data
 			continue
 
 		cmd = cmds[0].strip()
@@ -38,13 +39,15 @@ def clientthread(conn, myPacks):
 
 		if cmd == "INDEX":
 			
-			if not bool(re.match('^[.a-z0-9_-]+[+]*$', pkg, re.IGNORECASE)):
+			#if not bool(re.match('^[.a-z0-9_-]+[+]*[0-9]*$', pkg, re.IGNORECASE)):
+			if not bool(re.match('^[.+a-z0-9_-]+$', pkg, re.IGNORECASE)):
 				reply = "ERROR\n"
 				try:
 					conn.sendall(reply)	
 				except:
-					print "Dead connection: "
+					print "Dead connection"
 					break
+				print data
 				continue
 		
 			ret = myPacks.index(pkg, deps)	
@@ -59,7 +62,8 @@ def clientthread(conn, myPacks):
 			reply = ret
 
 		elif cmd == "PRINT":
-			reply = myPacks.printPackage()	
+			myPacks.printPackage()	
+			reply = "OK\n"
 
 		else:
 			reply = "ERROR\n"
@@ -69,7 +73,7 @@ def clientthread(conn, myPacks):
 		try:
 			conn.sendall(reply)	
 		except:
-			print "Dead connection: "
+			print "Dead connection"
 			break
 		
 	#came out of loop

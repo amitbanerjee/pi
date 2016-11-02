@@ -68,7 +68,9 @@ class PackageList:
 			else:
 				for sp in self.packages.keys():
 					if name in self.packages[sp]:
-						return "FALSE\n"
+						return "FAIL\n"
+				del self.packages[name]
+				
 		except:
 			#Something unexpected happened!
 			return "ERROR\n"
@@ -80,7 +82,9 @@ class PackageList:
 	Debugging: Print the packages
 	"""
 	def printPackage(self):
-		print self.packages
+		#print self.packages
+		for sp in self.packages.keys():
+			print sp, self.packages[sp].keys()
 
 if __name__=='__main__':
 
@@ -114,6 +118,6 @@ if __name__=='__main__':
 	myPacks.index("e", "f")
 	myPacks.index("a", "b,c")
 	myPacks.index("d", "c,e")
-	myPacks.printPackage()
 	myPacks.index("c", "g,Z")
+	print myPacks.remove("a")
 	myPacks.printPackage()
